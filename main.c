@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "tar.h"
+#include <string.h>
 
 int main()
 {
@@ -25,4 +26,8 @@ int main()
     init_map(&m);
     get_code(l, a, 0, &m);
     traverse_map(m);
+    encode(st, m);
+    //int arr[] = {1,0,1,1,1,1,0,1,0,0,0,1,0,1,0,0,1,1,1,1,1,1,1,0,0,0,1,1,0};
+    //decode(arr, l, 29);
+    return 0;
 }

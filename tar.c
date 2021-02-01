@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "tar.h"
+#include <string.h>
 
 void init(list *l) {
     *l = NULL;
@@ -172,4 +173,50 @@ void traverse(list l){
         p = p->next;
     }
     return;
+}
+
+void encode(char *s, map m) {
+    char ch;
+    code_map *p = NULL;
+    for(int i = 0; i < strlen(s); i++) {
+        ch = s[i];
+        p = search_map(m, ch);
+        for(int i = 0; i < p->f; i++) {
+            printf("%d", p->code[i]);
+        }
+    }
+    printf("\n");
+    return;
+}
+
+
+
+void decode(int s[], list l, int size) {
+    int n;
+    node *p = l;
+    for(int i = 0; i < size; i++) {
+        n = s[i];
+        if(n == 0) {
+            p = p->l;
+        }
+        else {
+            p = p->r;
+        }
+        if(!p->l && !p->r) {
+            printf("%c", p->ch);
+            p = l;
+        }
+    }
+    return;
+}
+
+code_map* search_map(map m, char ch) {
+    code_map *p = m;
+
+    while(p) {
+        if(p->ch == ch)
+            return p;
+        p = p->next;
+    }
+    return NULL;
 }

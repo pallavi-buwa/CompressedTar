@@ -60,7 +60,10 @@ void make_tree(list *l);
 void insert_sorted(list *l, node* p);
 void get_code(list l, int a[], int n, map* m);
 void traverse(list l);
+void encode(char *s, map m);
+void decode(int s[], list l, int size);
 
 void init_map(map *m);
 void append_map(map *m, char ch, int b[], int n);
 void traverse_map(map m);
+code_map* search_map(map l, char ch);
