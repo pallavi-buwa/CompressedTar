@@ -32,14 +32,13 @@ int main()
     traverse_map(m); //map aka linked list of codes obtained
 
     fp = fopen("D:/Semester3/DSA/Programs/HuffmanTest.txt", "r");
+    FILE* deletethis = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "w");
+    //write_table(fp, m);
+    encode(fp, m, deletethis);
 
-    write_table(&fp, m);
-    //Some function to write the codes as header of file
-
-
-    encode(fp, m);
     fclose(fp);
-    //int arr[] = {1,0,1,1,1,1,0,1,0,0,0,1,0,1,0,0,1,1,1,1,1,1,1,0,0,0,1,1,0};
-    //decode(arr, l, 29);
+    fclose(deletethis);
+    deletethis = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "r");
+    decode(deletethis, l);
     return 0;
 }

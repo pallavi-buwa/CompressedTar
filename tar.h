@@ -52,15 +52,37 @@ Evening status update: Added the header as char ch and int* code.
                         Damn.
                         Really need some form of encoding for codes.
                         Tried storing as a char array...recheck that.
-Okay lets do the math:
-                        a-z : 26
-                        A-Z : 26
-                        1-9 : 10
-                        Lets keep only . for now
-                        So..that is..63 characters!!!
 
-Conclusion: Really need a way to encode the codes
 
+To do: Really need a way to encode the codes
+
+Okay...weird thing...storing codes as either characters or integers makes no difference.
+Yup...double checked that.
+
+So..lets skip this for now shall we?
+(Hopefully it'll get balanced for super big files Kb type)
+
+Lets try to include other characters now....
+Whoa..done..that was quick...
+Turns out I had not included a lowercase condition...lol...
+
+OKAY
+Next step: Check the program on a big file.
+It works!!!!
+
+Bad news: The content generated with and without the header is different.
+            This is a serious problem...
+
+            Lets try this - decode the file without header and see if you get the output.
+            This is exhausting.
+            So...it works...kind of
+            The last character does not get encoded...probably something to do with the padding.
+            Yup...padding..that's the problem.
+Okay so here is what I have figured out after my tantrum:
+        something something... 11001010100111 so that's 14 bits...padding needed - 2 bits.
+        Solution: Insert a padding variable to store this count and while writing in the file
+        1100101010011100p2
+        So, while decoding, first scan the file to find p and somehow figure out a way to skip those bits
 */
 
 
@@ -81,6 +103,8 @@ typedef struct code_map {
 
 typedef code_map* map;
 
+int padding;
+
 //Huffman coding functions
 void init(list *l);
 void append(list *l, char ch);
@@ -89,10 +113,12 @@ void make_tree(list *l);
 void insert_sorted(list *l, node* p);
 void get_code(list l, int a[], int n, map* m);
 void traverse(list l);
-void encode(FILE *f, map m);
-void decode(int s[], list l, int size);
-void writeBit(int b,FILE *f);
-void write_table(FILE **fp, map m);
+void encode(FILE *f, map m, FILE* f1);
+void decode(FILE* f, list l);
+void writeBit(int b,FILE *f, int pass);
+void write_table(FILE* f, map m);
+char *int2string(int n);
+int* trying(char ch);
 
 void init_map(map *m);
 void append_map(map *m, char ch, int b[], int n);

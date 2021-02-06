@@ -172,12 +172,12 @@ void traverse(list l){
     return;
 }
 
-void encode(FILE* f, map m) {
-    FILE *f1 = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "a");
+void encode(FILE* f, map m, FILE* f1) {
+    /*FILE *f1 = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "a");
     if(!f1) {
         printf("Error\n");
         return;
-    }
+    }*/
 
     char ch;
     code_map *p = NULL;
@@ -188,15 +188,16 @@ void encode(FILE* f, map m) {
         p = search_map(m, ch);
         for(int i = 0; i < p->f; i++) {
             data = p->code[i]; //got one digit in 4 byte long variable data
-            writeBit(data, f1);
+            writeBit(data, f1, 0);
         }
         fscanf(f, "%c", &ch);
     }
-    fclose(f1);
+    writeBit(0, f1, 1);
+    //fclose(f1);
     return;
 }
 
-void writeBit(int b, FILE *f) {
+void writeBit(int b, FILE *f, int pass) {
 	static char byte;
 	static int cnt = 0;
 	char temp;
@@ -215,27 +216,96 @@ void writeBit(int b, FILE *f) {
 		byte=0;
 		return;
 	}
+	if(pass == 1) {     //buffer might be partially filled and eof was reached
+        fwrite(&byte,sizeof(char),1,f);
+        cnt=0;
+		byte=0;
+        return;
+	}
 	return;
 }
 
-void decode(int s[], list l, int size) {
-    int n;
-    node *p = l;
-    for(int i = 0; i < size; i++) {
-        n = s[i];
-        if(n == 0) {
-            p = p->l;
-        }
-        else {
-            p = p->r;
-        }
-        if(!p->l && !p->r) {
-            printf("%c", p->ch);
-            p = l;
-        }
+void decode(FILE* f, list l) {
+
+    FILE *fp = fopen("D:/Semester3/DSA/Programs/HuffmanDecoded.txt", "w");
+    if(fp == NULL) {
+        printf("Error\n");
+        return 1;
     }
+
+    int n, num;
+    char val;
+    node *p = l;
+    int* code;
+    int count =0 ;
+
+    //fscanf(f, "%c", &val);
+     fread(&val, 1, 1, f);
+
+    while(!feof(f)) {
+        //num = (int)val;
+        //temp = int2string(num);
+        code = trying(val);
+        for(int i = 0; i < 8; i++) {
+            //n = (int)temp[i];
+            n = *(code + i);
+            if(n == 0) {
+                p = p->l;
+            }
+            else {
+                p = p->r;
+            }
+            if(!p->l && !p->r) {
+                printf("%c", p->ch);
+                fprintf(fp, "%c", p->ch);
+                p = l;
+            }
+        }
+        //fscanf(f, "%c", &val);
+        fread(&val, 1, 1, f);
+
+        //printf("%d", count++);
+    }
+    fclose(fp);
     return;
 }
+
+
+char *int2string(int n) {
+    int i,k,and,j;
+    char *temp=(char *)malloc(16*sizeof(char));
+    j=0;
+
+    for(i=15;i>=0;i--)
+    {
+        and=1<<i;
+        k=n & and;
+        if(k==0) temp[j++]='0'; else temp[j++]='1';
+    }
+    //temp[j]='\0';
+    return temp;
+}
+
+int* trying(char ch) {
+    static int ans[8] = {};
+    int n;
+    char one = 1 << 7;
+    for(int i = 0; i < 8; i++) {
+        n = one & ch;
+        if(n == 0) {
+            ans[i] = 0;
+        }
+        else {
+            ans[i] = 1;
+        }
+        ch = ch << 1;
+    }
+    /*for(int i = 0; i < 8; i++) {
+    printf("%d ", ans[i]);
+    }*/
+    return ans;
+}
+
 
 code_map* search_map(map m, char ch) {
     code_map *p = m;
@@ -249,8 +319,8 @@ code_map* search_map(map m, char ch) {
 }
 
 
-void write_table(FILE **fp, map m) {
-    FILE *f = *fp;
+void write_table(FILE* f, map m) {
+
     code_map *p = m;
 
     FILE *f1 = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "w");
@@ -258,22 +328,24 @@ void write_table(FILE **fp, map m) {
         printf("Error\n");
         return;
     }
-    char temp[20];
 
     while(p) {
         fprintf(f1, "%c", p->ch);
         for(int i = 0; i < p->f; i++) {
             fprintf(f1, "%d", p->code[i]);
             /*if(p->code[i]) {
-                temp[i] = '1';
+                fprintf(f1, "%c", '1');
             }
             else {
-                temp[i] = '0';
+                fprintf(f1, "%c", '0');
             }*/
         }
-        //fwrite(temp,sizeof(char),p->f,f1);
         p = p->next;
     }
+    encode(f, m, f1);
     fclose(f1);
     return;
 }
+
+
+
