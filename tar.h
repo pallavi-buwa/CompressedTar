@@ -29,8 +29,37 @@ All the above features
 
 STAGE 1
 
-Implement Huffman algorithm to compress and decompress a string
-Extend to files
+Done yaaayyyyyyy!!!!! Implement Huffman algorithm to compress and decompress a string
+
+Extend to files :
+So....let's do this!
+For now, lets keep a file fixed.
+
+Okay, so the file gets compressed...great!
+Now, the thing is, we need to add the mapping table as a header in the file itself.
+So when you start to decompress, you first read that table and then decode the whole file.
+Time to do that!
+
+Evening status update: Added the header as char ch and int* code.
+                        So if the file size is really small, the final one ends up being larger than
+                        the original file cause of the int codes.
+                        So...what to do now?
+                        Could try to encode the codes in some way...that seems tricky cause we will have to store the
+                        size of the code to read only those many numbers...rest will have to be 0 in the
+                        buffer..and the size may go beyond 8 bits so that's another headache.
+                        Hmmmm...
+                        Also.....we still have to add capital letters, numbers, spaces and special characters.
+                        Damn.
+                        Really need some form of encoding for codes.
+                        Tried storing as a char array...recheck that.
+Okay lets do the math:
+                        a-z : 26
+                        A-Z : 26
+                        1-9 : 10
+                        Lets keep only . for now
+                        So..that is..63 characters!!!
+
+Conclusion: Really need a way to encode the codes
 
 */
 
@@ -60,8 +89,10 @@ void make_tree(list *l);
 void insert_sorted(list *l, node* p);
 void get_code(list l, int a[], int n, map* m);
 void traverse(list l);
-void encode(char *s, map m);
+void encode(FILE *f, map m);
 void decode(int s[], list l, int size);
+void writeBit(int b,FILE *f);
+void write_table(FILE **fp, map m);
 
 void init_map(map *m);
 void append_map(map *m, char ch, int b[], int n);

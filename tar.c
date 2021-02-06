@@ -38,7 +38,6 @@ void append_map(map *m, char ch, int b[], int n) { //add top later to insert in 
     return;
 }
 
-
 void make_tree(list *l) {
     node *p = *l;
     node* nn;
@@ -67,7 +66,6 @@ void make_tree(list *l) {
     *l = nn;
     return;
 }
-
 
 void append(list *l, char ch){
     node *ptr = search(*l, ch);
@@ -130,7 +128,6 @@ node* search(list l, char ch) {
     return NULL;
 }
 
-
 void get_code(list l, int a[], int n, map* m) {
     if(l->l) {
         a[n] = 0;
@@ -175,21 +172,51 @@ void traverse(list l){
     return;
 }
 
-void encode(char *s, map m) {
+void encode(FILE* f, map m) {
+    FILE *f1 = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "a");
+    if(!f1) {
+        printf("Error\n");
+        return;
+    }
+
     char ch;
     code_map *p = NULL;
-    for(int i = 0; i < strlen(s); i++) {
-        ch = s[i];
+    int data;
+
+    fscanf(f, "%c", &ch);
+    while(!feof(f)) {
         p = search_map(m, ch);
         for(int i = 0; i < p->f; i++) {
-            printf("%d", p->code[i]);
+            data = p->code[i]; //got one digit in 4 byte long variable data
+            writeBit(data, f1);
         }
+        fscanf(f, "%c", &ch);
     }
-    printf("\n");
+    fclose(f1);
     return;
 }
 
+void writeBit(int b, FILE *f) {
+	static char byte;
+	static int cnt = 0;
+	char temp;
+	//printf("\nSetting %dth bit = %d of %d ",cnt,b,byte);
+	if(b == 1) {
+        temp = 1;
+		temp = temp<<(7-cnt);
+		byte = byte | temp;
+	}
+	cnt++;
 
+	if(cnt==8)	//buffer full
+	{
+		fwrite(&byte,sizeof(char),1,f);
+		cnt=0;
+		byte=0;
+		return;
+	}
+	return;
+}
 
 void decode(int s[], list l, int size) {
     int n;
@@ -219,4 +246,34 @@ code_map* search_map(map m, char ch) {
         p = p->next;
     }
     return NULL;
+}
+
+
+void write_table(FILE **fp, map m) {
+    FILE *f = *fp;
+    code_map *p = m;
+
+    FILE *f1 = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "w");
+    if(!f1) {
+        printf("Error\n");
+        return;
+    }
+    char temp[20];
+
+    while(p) {
+        fprintf(f1, "%c", p->ch);
+        for(int i = 0; i < p->f; i++) {
+            fprintf(f1, "%d", p->code[i]);
+            /*if(p->code[i]) {
+                temp[i] = '1';
+            }
+            else {
+                temp[i] = '0';
+            }*/
+        }
+        //fwrite(temp,sizeof(char),p->f,f1);
+        p = p->next;
+    }
+    fclose(f1);
+    return;
 }

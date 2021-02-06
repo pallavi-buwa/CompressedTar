@@ -5,28 +5,40 @@
 
 int main()
 {
-    char st[20];
-    strcpy(st, "");
-    printf("Enter a string: ");
-    gets(st);
+
+    FILE *fp;
+    fp = fopen("D:/Semester3/DSA/Programs/HuffmanTest.txt", "r");
+    if(!fp) {
+        printf("Error\n");
+        return 1;
+    }
+
     char ch;
     list l;
     init(&l);
-    for(int i = 0; i < 20; i++) {
-        ch = st[i];
-        if(ch >= 'a' && ch <= 'z') {
-            append(&l, ch);
-        }
-        else
-            break;
+
+    fscanf(fp, "%c", &ch);
+    while(!feof(fp)) {
+        append(&l, ch);
+        fscanf(fp, "%c", &ch);
     }
+    fclose(fp);
+
     make_tree(&l);
     int a[30];
     map m;
     init_map(&m);
     get_code(l, a, 0, &m);
-    traverse_map(m);
-    encode(st, m);
+    traverse_map(m); //map aka linked list of codes obtained
+
+    fp = fopen("D:/Semester3/DSA/Programs/HuffmanTest.txt", "r");
+
+    write_table(&fp, m);
+    //Some function to write the codes as header of file
+
+
+    encode(fp, m);
+    fclose(fp);
     //int arr[] = {1,0,1,1,1,1,0,1,0,0,0,1,0,1,0,0,1,1,1,1,1,1,1,0,0,0,1,1,0};
     //decode(arr, l, 29);
     return 0;
