@@ -78,11 +78,50 @@ Bad news: The content generated with and without the header is different.
             So...it works...kind of
             The last character does not get encoded...probably something to do with the padding.
             Yup...padding..that's the problem.
+
 Okay so here is what I have figured out after my tantrum:
         something something... 11001010100111 so that's 14 bits...padding needed - 2 bits.
         Solution: Insert a padding variable to store this count and while writing in the file
-        1100101010011100p2
-        So, while decoding, first scan the file to find p and somehow figure out a way to skip those bits
+        11001010100111002
+        So, while decoding, read the last byte which gives you number of bits of paddind
+
+Done....the file is getting compressed and decompressed. Padding bits are not an issue because there will be
+no corresponding path in the tree.
+
+Now...all of this is without writing the map in the header.
+
+Next step: Write the map in the header
+           Rewrite code for decompression by dynamically generating the tree
+
+Ohhh..wait...padding is an issue...
+Damn this is messy
+So I have the padding value and now we have got to make a function to skip padding  bits
+
+Done...for now I'm storing padding in a global variable.
+
+Time to write the header
+Format : letter code letter code......
+
+Problem: Gotta store padding as the last byte of the file
+
+Okay..we're making good progress...now we gotta store number of characters as the first byte of the file
+
+Big files dont work..small ones do..no clue what the problem is
+
+Okay Okay...the header is correct..reading is the issue...fix that
+
+
+Whoa..lots of changes
+
+Finally : 64c(total number of characters)numofdigitscharacter....
+
+READ the last bit of the file!!!!! you've assigned it to padding
+
+THIS IS MAD
+
+SO....ASCII for EOF is 26..which is cropping up in your program
+So in decode() you have to find a way to continue the loop if EOF is encountered.
+And that double pointer business...check that...
 */
 
 
@@ -103,7 +142,7 @@ typedef struct code_map {
 
 typedef code_map* map;
 
-int padding;
+int padding, bytes;
 
 //Huffman coding functions
 void init(list *l);
@@ -114,13 +153,19 @@ void insert_sorted(list *l, node* p);
 void get_code(list l, int a[], int n, map* m);
 void traverse(list l);
 void encode(FILE *f, map m, FILE* f1);
-void decode(FILE* f, list l);
-void writeBit(int b,FILE *f, int pass);
+void decode(FILE* f, list l, FILE* f1);
+void writeBit(int b,FILE *f);
 void write_table(FILE* f, map m);
 char *int2string(int n);
 int* trying(char ch);
+void read_header(FILE* fp, list *l, FILE* trail);
+node *make_blank_node();
+int count_leaf(list l); //mostly not needed
 
 void init_map(map *m);
 void append_map(map *m, char ch, int b[], int n);
 void traverse_map(map m);
 code_map* search_map(map l, char ch);
+
+
+void check_file();

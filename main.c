@@ -33,12 +33,24 @@ int main()
 
     fp = fopen("D:/Semester3/DSA/Programs/HuffmanTest.txt", "r");
     FILE* deletethis = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "w");
-    //write_table(fp, m);
-    encode(fp, m, deletethis);
+    write_table(fp, m);
+    //encode(fp, m, deletethis);
 
     fclose(fp);
     fclose(deletethis);
+
+    //check_file();//file written correctly
+
     deletethis = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "r");
-    decode(deletethis, l);
+    FILE *deletethistoo = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "r");
+
+    list l1;
+    init(&l1);
+
+    read_header(deletethis, &l1, deletethistoo);
+    //decode(deletethis, l, deletethistoo);
+    //decode_try(l1);
+
+    fclose(deletethis);
     return 0;
 }
