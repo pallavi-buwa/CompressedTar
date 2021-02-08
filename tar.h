@@ -122,6 +122,8 @@ THIS IS MAD
 SO....ASCII for EOF is 26..which is cropping up in your program
 So in decode() you have to find a way to continue the loop if EOF is encountered.
 And that double pointer business...check that...
+
+remove trail
 */
 
 

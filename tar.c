@@ -222,7 +222,13 @@ void writeBit(int b, FILE *f) {
     cnt++;
 	if(cnt==8)	//buffer full
 	{
-		fwrite(&byte,sizeof(char),1,f);
+	    if((int)byte == 26) {
+            char temp[] = {'0', '0', '0', '1', '1', '0', '1', '0'};
+            fwrite(&temp,sizeof(char),8,f);
+	    }
+	    else {
+            fwrite(&byte,sizeof(char),1,f);
+	    }
 		//fflush(f);
 		printf("\nWritten byte %d ",byte);
 		bytes++;
@@ -285,7 +291,7 @@ void decode(FILE* f, list l, FILE* f1) {
     //fread(&check2, 1, 1, f1);
 
 
-
+    int eof[] = {0,0,0,1,1,0,1,0};
     while(count < bytes) {
         count++;
         /*if(feof(f)) {
@@ -293,7 +299,24 @@ void decode(FILE* f, list l, FILE* f1) {
         }*/
         //num = (int)val;
         //temp = int2string(num);
-        code = trying(val);
+        if(val == '0') {
+            code[0] = val - '0';
+            for(int j = 1; j < 8; j++) {
+                fread(&val, 1, 1, f);
+                code[j] = val - '0';
+                if(code[j] == eof[j]) {
+                    continue;
+                }
+                else {
+                    fseek(f, -j, SEEK_CUR);
+                    code = trying('0');
+                    break;
+                }
+            }
+        }
+        else {
+            code = trying(val);
+        }
         for(int i = 0; i < 8 - final_bits; i++) {
             //n = (int)temp[i];
             n = *(code + i);
