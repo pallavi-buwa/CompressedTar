@@ -13,7 +13,8 @@ void init_map(map *m) {
     return;
 }
 
-void append_map(map *m, char ch, int b[], int n) { //add top later to insert in O(1)
+void append_map(map *m, char ch, int b[], int n) {
+    //add top later to insert in O(1)
     code_map *nn = (code_map*)malloc(sizeof(code_map));
     if(nn) {
         nn->ch = ch;
@@ -202,7 +203,15 @@ void encode(FILE* f, map m, FILE* f1) {
     for(int k = 0; k < 8 - count; k++) {
         writeBit(0, f1);
     }
-    fprintf(f1, "%d", padding);
+    //fprintf(f1, "%d", padding);
+    fprintf(f1, "%d", bytes);
+    int t = bytes;
+    int count_num = 0;
+    while(t > 0) {
+        t = t / 10;
+        count_num++;
+    }
+    fprintf(f1, "%d", count_num);
 
     //printf("Padding:%d", padding);
     fclose(f1);
@@ -230,7 +239,7 @@ void writeBit(int b, FILE *f) {
             fwrite(&byte,sizeof(char),1,f);
 	    }
 		//fflush(f);
-		printf("\nWritten byte %d ",byte);
+		//printf("\nWritten byte %d ",byte);
 		bytes++;
 		cnt=0;
 		byte=0;
@@ -250,9 +259,13 @@ void decode(FILE* f, list l, FILE* f1) {
     FILE* f2 = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "r");
     fseek(f2, -1, SEEK_END);
 
-    int offset;
+    int offset, offset2;
+    fscanf(f2, "%d", &offset2);
+    printf("OFFSETTTTT %d\n", offset2);
+    fseek(f2, -(1+offset2), SEEK_END);
     fscanf(f2, "%d", &offset);
-    fseek(f2, 0, SEEK_SET);
+    offset = offset / 10;
+    printf("BYTESSSS %d\n", offset);
     int count = 0;
     char test, test1;
 
@@ -290,9 +303,9 @@ void decode(FILE* f, list l, FILE* f1) {
     //fread(&check2, 1, 1, f1);
     //fread(&check2, 1, 1, f1);
 
-
+    // NOTEEEEE bytes = offset
     int eof[] = {0,0,0,1,1,0,1,0};
-    while(count < bytes) {
+    while(count < offset - 1) {
         count++;
         /*if(feof(f)) {
             count -- ;
@@ -358,24 +371,9 @@ void decode(FILE* f, list l, FILE* f1) {
 }
 
 
-char *int2string(int n) {
-    int i,k,and,j;
-    char *temp=(char *)malloc(16*sizeof(char));
-    j=0;
-
-    for(i=15;i>=0;i--)
-    {
-        and=1<<i;
-        k=n & and;
-        if(k==0) temp[j++]='0'; else temp[j++]='1';
-    }
-    //temp[j]='\0';
-    return temp;
-}
-
 int* trying(char ch) {
 
-    printf("Obtained byte: %d\n", ch);
+    //printf("Obtained byte: %d\n", ch);
     static int ans[8] = {};
     int n;
     char one = 1 << 7;
@@ -460,7 +458,7 @@ void read_header(FILE* fp, list *l, FILE* trail) {
     char t;
     int  f;
     fscanf(fp, "%d", &count); //number of distinct characters
-    fread(&discard, 1, 1, fp);
+    fread(&discard, 1, 1, fp); //reading the character c
 
     fscanf(trail, "%d", &count1);
     fread(&discard1, 1, 1, trail);
@@ -475,9 +473,9 @@ void read_header(FILE* fp, list *l, FILE* trail) {
         fread(&ch, 1, 1, fp);
         fread(&discard1, 1, 1, trail);
 
-        printf("%c ", ch);
+        //printf("%c ", ch);
 
-        printf(" %d \n", f);
+        //printf(" %d \n", f);
 
 
         for(i = 0; i < f; i++) {
@@ -519,6 +517,7 @@ void read_header(FILE* fp, list *l, FILE* trail) {
 
         int x;
         p = *l;
+        //constructing tree
         for(int j = 0; j < i; j++) {
             x = a[j];
             //printf("x: %d ", x);
@@ -534,7 +533,7 @@ void read_header(FILE* fp, list *l, FILE* trail) {
                     }
                     else {
                         p->l = n;
-                        printf("inserted leaf %c\n", p->l->ch);
+                        //printf("inserted leaf %c\n", p->l->ch);
                     }
                 }
             }
@@ -549,7 +548,7 @@ void read_header(FILE* fp, list *l, FILE* trail) {
                     }
                     else {
                         p->r = n;
-                        printf("inserted leaf %c\n", p->r->ch);
+                        //printf("inserted leaf %c\n", p->r->ch);
                     }
                 }
             }
@@ -569,16 +568,6 @@ node *make_blank_node() {
     return nn;
 }
 
-int count_leaf(list l) {
-    node *p = l;
-    if(l == NULL) {
-        return 0;
-    }
-    if(!p->l && !p->r) {
-        return 1;
-    }
-    return (count_leaf(p->l) + count_leaf(p->r));
-}
 
 void check_file() {
     printf("\n Checking file\n");
@@ -595,7 +584,7 @@ void check_file() {
     fclose(deletethis);
 }
 
-
+//these three functions are not needed
 void decode_try(list l) {
 
     FILE* f;
@@ -664,5 +653,32 @@ void decode_try(list l) {
      free the memory we used for the buffer */
     free(buffer);
 
+}
+
+
+char *int2string(int n) {
+    int i,k,and,j;
+    char *temp=(char *)malloc(16*sizeof(char));
+    j=0;
+
+    for(i=15;i>=0;i--)
+    {
+        and=1<<i;
+        k=n & and;
+        if(k==0) temp[j++]='0'; else temp[j++]='1';
+    }
+    //temp[j]='\0';
+    return temp;
+}
+
+int count_leaf(list l) {
+    node *p = l;
+    if(l == NULL) {
+        return 0;
+    }
+    if(!p->l && !p->r) {
+        return 1;
+    }
+    return (count_leaf(p->l) + count_leaf(p->r));
 }
 

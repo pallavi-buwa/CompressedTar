@@ -124,6 +124,13 @@ So in decode() you have to find a way to continue the loop if EOF is encountered
 And that double pointer business...check that...
 
 remove trail
+
+
+Yo...So T1 is finally over...wow its been a long time....I barely remember anything...
+So where were we...header...right!
+
+Format: (Number of characters)c(Number of digits in the code)(character)(code)Number of digits in the code)(character)(code)...
+        ......Encoded Data.....(Number of bits of padding)
 */
 
 
