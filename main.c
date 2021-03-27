@@ -34,8 +34,6 @@ int main()
     fp = fopen("D:/Semester3/DSA/Programs/HuffmanTest.txt", "r");
     FILE* deletethis = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "w");
     write_table(fp, m);
-    //encode(fp, m, deletethis);
-
     fclose(fp);
     fclose(deletethis);
 
@@ -48,9 +46,6 @@ int main()
     init(&l1);
 
     read_header(deletethis, &l1, deletethistoo);
-    //decode(deletethis, l, deletethistoo);
-    //decode_try(l1);
-
     fclose(deletethis);
     return 0;
 }
