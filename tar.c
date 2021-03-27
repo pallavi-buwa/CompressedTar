@@ -197,7 +197,7 @@ void encode(FILE* f, map m, FILE* f1) {
             }
         }
         fscanf(f, "%c", &ch);
-        printf("%c", ch);
+        //printf("%c", ch);
     }
     padding = 8 - count;
     for(int k = 0; k < 8 - count; k++) {
@@ -256,6 +256,9 @@ void decode(FILE* f, list l, FILE* f1) {
         return;
     }
     //FILE* f1 = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "r");
+
+    //EVERYTHING IN THIS BLOCK WORKS
+    /*
     FILE* f2 = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "r");
     fseek(f2, -1, SEEK_END);
 
@@ -268,6 +271,21 @@ void decode(FILE* f, list l, FILE* f1) {
     printf("BYTESSSS %d\n", offset);
     int count = 0;
     char test, test1;
+    */
+
+    fseek(f1, -1, SEEK_END);
+    int offset, offset2;
+    fscanf(f1, "%d", &offset2);
+    printf("OFFSETTTTT %d\n", offset2);
+    fseek(f1, -(1+offset2), SEEK_END);
+    fscanf(f1, "%d", &offset);
+    offset = offset / 10;
+    printf("BYTESSSS %d\n", offset);
+    int count = 0;
+    char test, test1;
+
+
+
 
    /* while(true) {
         fread(&test, 1, 1, f2);
@@ -460,18 +478,19 @@ void read_header(FILE* fp, list *l, FILE* trail) {
     fscanf(fp, "%d", &count); //number of distinct characters
     fread(&discard, 1, 1, fp); //reading the character c
 
-    fscanf(trail, "%d", &count1);
-    fread(&discard1, 1, 1, trail);
+    //TRAIL CODE
+    //fscanf(trail, "%d", &count1);
+    //fread(&discard1, 1, 1, trail);
 
     while(count) {
         count--;
         i = 0;
         //fread(&f, 1, 1, fp);
         fscanf(fp, "%d", &f);
-        fscanf(trail, "%d", &count1);
+        //fscanf(trail, "%d", &count1);
 
         fread(&ch, 1, 1, fp);
-        fread(&discard1, 1, 1, trail);
+        //fread(&discard1, 1, 1, trail);
 
         //printf("%c ", ch);
 
@@ -481,7 +500,7 @@ void read_header(FILE* fp, list *l, FILE* trail) {
         for(i = 0; i < f; i++) {
 
             fread(&t, 1, 1, fp);
-            fread(&discard1, 1, 1, trail);
+            //fread(&discard1, 1, 1, trail);
             if(t == '0')
                 a[i] = 0;
             else

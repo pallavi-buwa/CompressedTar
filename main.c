@@ -29,7 +29,7 @@ int main()
     map m;
     init_map(&m);
     get_code(l, a, 0, &m);
-    traverse_map(m); //map aka linked list of codes obtained
+    //traverse_map(m); //map aka linked list of codes obtained
 
     fp = fopen("D:/Semester3/DSA/Programs/HuffmanTest.txt", "r");
     FILE* deletethis = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "w");

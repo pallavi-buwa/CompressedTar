@@ -129,8 +129,25 @@ remove trail
 Yo...So T1 is finally over...wow its been a long time....I barely remember anything...
 So where were we...header...right!
 
-Format: (Number of characters)c(Number of digits in the code)(character)(code)Number of digits in the code)(character)(code)...
-        ......Encoded Data.....(Number of bits of padding)
+Format: (Number of characters)c(Number of digits in the code)(character)(code)(Number of digits in the code)(character)(code)...
+        ......Encoded Data.....(Number of bytes written)(Number of digits in bytes)
+
+Hello!
+Long time no see...t2 was horrible...no time to work on this :(
+Anyway.....I'm back!
+
+So now, progress review: Huffman is good!
+Now, the tar format needs a whole bunch of data in the header..eh..I ain't doing all that now
+So, lets make the archive like this: document name-encoded data(huffman format)
+                                    256 bytes of 0
+                                    document name-encoded data(huffman format)
+                                    .
+                                    .
+                                    .
+                                    document name-encoded data(huffman format)
+Okay, clean up your code first.
+
+
 */
 
 
