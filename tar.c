@@ -189,19 +189,23 @@ void encode(FILE* f, map m, FILE* f1) {
         fscanf(f, "%c", &ch);
     }
     padding = 8 - count;
+    bytes[byteptrs++] = padding;
     for(int k = 0; k < 8 - count; k++) {
         writeBit(0, f1);
     }
 
-    fprintf(f1, "%d", bytes);
+    /*fprintf(f1, "%d", bytes);
     int t = bytes;
     int count_num = 0;
     while(t > 0) {
         t = t / 10;
         count_num++;
     }
-    fprintf(f1, "%d", count_num);
-    fclose(f1);
+    fprintf(f1, "%d", count_num);*/
+
+    char terminating[] = {'0', '0', '0', '0', '0', '0', '0', '0'};
+    fwrite(&terminating,sizeof(char),8,f1);
+    //fclose(f1);
     return;
 }
 
@@ -224,98 +228,12 @@ void writeBit(int b, FILE *f) {
 	    else {
             fwrite(&byte,sizeof(char),1,f);
 	    }
-		bytes++;
+		//bytes++;
 		cnt=0;
 		byte=0;
 		return;
 	}
 	return;
-}
-
-void decode(FILE* f, list l, FILE* f1) {
-
-    FILE *fp = fopen("D:/Semester3/DSA/Programs/HuffmanDecoded.txt", "w");
-    if(fp == NULL) {
-        printf("Error\n");
-        return;
-    }
-    int offset, offset2;
-
-    fseek(f1, -1, SEEK_END);
-
-    fscanf(f1, "%d", &offset2);
-
-    fseek(f1, -(1+offset2), SEEK_END);
-
-    fscanf(f1, "%d", &offset);
-
-    int t = offset2;
-    int c_d = 0;
-    while(t > 0) {
-        c_d++;
-        t = t / 10;
-    }
-    int divby = pow(10, c_d);
-    offset = (int) (offset / pow(10, c_d));
-
-    int count = 0;
-    char test, test1;
-
-
-    int n, num;
-    static char val;
-    static char check;
-    static char check1;
-    static char check2;
-
-    fread(&check2, 1, 1, f1);
-    node *p = l;
-    int* code;
-    int final_bits = 0, stop = 0;
-    fread(&val, 1, 1, f);
-
-    // NOTEEEEE bytes = offset
-    int eof[] = {0,0,0,1,1,0,1,0};
-    while(count < offset - 1) {
-        count++;
-        if(val == '0') {
-            code[0] = val - '0';
-            for(int j = 1; j < 8; j++) {
-                fread(&val, 1, 1, f);
-                code[j] = val - '0';
-                if(code[j] == eof[j]) {
-                    continue;
-                }
-                else {
-                    fseek(f, -j, SEEK_CUR);
-                    code = trying('0');
-                    break;
-                }
-            }
-        }
-        else {
-            code = trying(val);
-        }
-        for(int i = 0; i < 8 - final_bits; i++) {
-
-            n = *(code + i);
-            if(n == 0) {
-                p = p->l;
-            }
-            else {
-                p = p->r;
-            }
-            if(!p->l && !p->r) {
-                fprintf(fp, "%c", p->ch);
-                p = l;
-            }
-
-        }
-        fread(&val, 1, 1, f);
-
-    }
-    fclose(fp);
-    return;
 }
 
 int* trying(char ch) {
@@ -347,8 +265,7 @@ code_map* search_map(map m, char ch) {
     return NULL;
 }
 
-void write_table(FILE* f, map m) {
-
+void write_table(char* s[], map m, int n) {
     code_map *p = m;
     int count = 0;
     while(p) {
@@ -357,7 +274,7 @@ void write_table(FILE* f, map m) {
     }
     p = m;
 
-    FILE *f1 = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "w");
+    FILE *f1 = fopen("HuffmanFinal.txt", "w");
     if(!f1) {
         printf("Error\n");
         return;
@@ -372,20 +289,101 @@ void write_table(FILE* f, map m) {
         }
         p = p->next;
     }
-    encode(f, m, f1);
+    FILE* f;
+    for(int i = 0; i < n; i++) {
+        f = fopen(s[i], "r");
+        encode(f, m, f1);
+        fclose(f);
+    }
+    int off = 0;
+    for(int i = 0; i < n; i++) {
+        off = off + strlen(s[i]);
+    }
+    off = off + n;
+
+    for(int i = 0; i < n; i++) {
+        fprintf(f1, "%s", s[i]);
+        fprintf(f1, "%d", bytes[i]);
+
+    }
+    fprintf(f1, "%d", off);
+    int c_off = 0;
+    while(off > 0) {
+        c_off++;
+        off = off / 10;
+    }
+    fprintf(f1, "%d", c_off);
     fclose(f1);
     return;
 }
 
-void read_header(FILE* fp, list *l, FILE* trail) {
+void read_header(FILE* fp, list *l) {
+
     node *p = *l;
     node* nn = make_blank_node();
     *l = nn;
     p = nn;
 
-    char ch, discard, discard1;
+    fseek(fp, -1, SEEK_END);
+    int d;
+
+    fscanf(fp, "%d", &d);
+    fseek(fp, -(1 + d), SEEK_END);
+    int offset1 = 0;
+    fscanf(fp, "%d", &offset1);
+    offset1 = offset1 / 10;
+
+    fseek(fp, -(offset1 + 1 + d), SEEK_END);
+    char buffer[500];
+    int counter = 0;
+    while(!feof(fp)) {
+        fscanf(fp, "%c", &buffer[counter]);
+        counter++;
+    }
+    fseek(fp, 0, SEEK_SET);
+
+    int count_files = 0;
+    int nme = 0, bt = 0;
+    int flag = 0, ptr_nme = 0;
+
+    char name[20];
+    char ch1;
+    char* s[100];
+
+    for(int i = 0; i < counter; i++) {
+        ch1 = buffer[i];
+        if((ch1 >= 'A' && ch1 <= 'Z') || (ch1 >= 'a' && ch1 <= 'z') || ch1 == '.') {
+            name[nme++] = ch1;
+            flag = 1;
+        }
+        else {
+            if(flag) {
+                bytes[bt++] = ch1 - '0';
+                s[ptr_nme] = (char*)malloc(sizeof(char) * 20);
+                strcpy(s[ptr_nme], name);
+                ptr_nme++;
+                nme = 0;
+                strcpy(name, "");
+                flag = 0;
+                count_files++;
+            }
+            else {
+                break;
+            }
+        }
+    }
+    /*printf("Number of files: %d\n", count_files);
+    for(int temp = 0; temp < count_files; temp++) {
+        printf("%s\n", s[temp]);
+    }
+    printf("ints\n");
+    for(int temp = 0; temp < count_files; temp++) {
+        printf("%d\n", bytes[temp]);
+    }*/
+
+    char ch, discard;
     int a[20] = {};
-    int i = 0, count = 0, count1;
+    int i = 0, count = 0;
     char t;
     int  f;
     fscanf(fp, "%d", &count); //number of distinct characters
@@ -447,10 +445,95 @@ void read_header(FILE* fp, list *l, FILE* trail) {
         }
     }
 
-    decode(fp, *l, trail);
+    int pos = 0, val = 0;
 
+    while(val < count_files) {
+        fp = decode(fp, *l, s[pos]);
+        pos++;
+        val++;
+
+    }
     return;
 }
+
+
+FILE* decode(FILE* f, list l, char* num) {
+    FILE *fp = fopen(num, "w");
+    if(fp == NULL) {
+        printf("Error here note\n");
+        return EOF;
+    }
+
+    int count = 0;
+
+    int n;
+    static char val;
+
+    node *p = l;
+    int* code;
+    fread(&val, 1, 1, f);
+
+    // NOTEEEEE bytes = offset
+    int eof[] = {0,0,0,1,1,0,1,0};
+    int terminate[] = {0,0,0,0,0,0,0,0};
+    int term = 0;
+    while(!term) {
+        count++;
+        if(val == '0') {
+            code[0] = val - '0';
+            for(int j = 1; j < 8; j++) {
+                fread(&val, 1, 1, f);
+                code[j] = val - '0';
+                if(code[j] == eof[j] || code[j] == terminate[j]) {
+                    if(j == 7) {
+                        int testing;
+                        for(testing = 0; testing < 8; testing++) {
+                            if(code[testing] != terminate[testing]) {
+                                break;
+                            }
+                        }
+                        if(testing == 8) {
+                            term = 1;
+                            break;
+                        }
+                    }
+                    continue;
+                }
+                else {
+                    fseek(f, -j, SEEK_CUR);
+                    code = trying('0');
+                    break;
+                }
+            }
+        }
+        else {
+            code = trying(val);
+        }
+        if(term == 1) {
+            break;
+        }
+        for(int i = 0; i < 8; i++) {
+
+            n = *(code + i);
+            if(n == 0) {
+                p = p->l;
+            }
+            else {
+                p = p->r;
+            }
+            if(!p->l && !p->r) {
+                fprintf(fp, "%c", p->ch);
+                p = l;
+            }
+
+        }
+        fread(&val, 1, 1, f);
+
+    }
+    fclose(fp);
+    return f;
+}
+
 
 node *make_blank_node() {
     node* nn = (node*)malloc(sizeof(node));

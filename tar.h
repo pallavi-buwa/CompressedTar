@@ -83,7 +83,7 @@ Okay so here is what I have figured out after my tantrum:
         something something... 11001010100111 so that's 14 bits...padding needed - 2 bits.
         Solution: Insert a padding variable to store this count and while writing in the file
         11001010100111002
-        So, while decoding, read the last byte which gives you number of bits of paddind
+        So, while decoding, read the last byte which gives you number of bits of padding
 
 Done....the file is getting compressed and decompressed. Padding bits are not an issue because there will be
 no corresponding path in the tree.
@@ -95,7 +95,7 @@ Next step: Write the map in the header
 
 Ohhh..wait...padding is an issue...
 Damn this is messy
-So I have the padding value and now we have got to make a function to skip padding  bits
+So I have the padding value and now we have got to make a function to skip padding bits
 
 Done...for now I'm storing padding in a global variable.
 
@@ -146,7 +146,44 @@ So, lets make the archive like this: document name-encoded data(huffman format)
                                     .
                                     document name-encoded data(huffman format)
 Okay, clean up your code first.
+Done!
 
+Now we need to accept the name of the file
+
+Wow! Great progress today!
+So the archive is made with a single header
+            Header
+            Encrypted content
+            00000000
+            Encrypted content
+            00000000
+            .
+            .
+            .
+            Encrypted content
+            00000000
+Decryption works-almost...
+The issue is with padding (yup...that stupid thing again)
+
+So, we need to find a way to store the names of the files and the padding bits in each.
+Vague idea...we already have the array of names so just make an array of padding bits and
+write it in at the end. Okay...done for the day..lets solve this issue tomorrow...
+
+Lets see now
+
+blah blah blah
+00000000
+Test1.txt(padding)
+Test2.txt(padding)
+.
+.
+offset(length of all strings+n)
+length of offset
+
+Alright then!
+This format works...
+Now, there is some extra txta file getting generated...check that...
+Also, now you need to find a way to deal with padding in the code...that's gonna be tough
 
 */
 
@@ -168,7 +205,9 @@ typedef struct code_map {
 
 typedef code_map* map;
 
-int padding, bytes;
+int padding;
+int byteptrs;
+int bytes[100];
 
 //Huffman coding functions
 void init(list *l);
@@ -179,12 +218,12 @@ void insert_sorted(list *l, node* p);
 void get_code(list l, int a[], int n, map* m);
 void traverse(list l);
 void encode(FILE *f, map m, FILE* f1);
-void decode(FILE* f, list l, FILE* f1);
+FILE* decode(FILE* f, list l, char* num);
 void writeBit(int b,FILE *f);
-void write_table(FILE* f, map m);
+void write_table(char* s[], map m, int n);
 char *int2string(int n);
 int* trying(char ch);
-void read_header(FILE* fp, list *l, FILE* trail);
+void read_header(FILE* fp, list *l);
 node *make_blank_node();
 int count_leaf(list l); //mostly not needed
 

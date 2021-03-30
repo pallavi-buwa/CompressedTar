@@ -5,47 +5,57 @@
 
 int main()
 {
-
-    FILE *fp;
-    fp = fopen("D:/Semester3/DSA/Programs/HuffmanTest.txt", "r");
-    if(!fp) {
-        printf("Error\n");
-        return 1;
-    }
-
+    char* s[50];
+    int n;
     char ch;
     list l;
     init(&l);
+    FILE *fp;
+    printf("Number of files to be compressed: ");
+    scanf("%d", &n);
+    getc(stdin);
+    int i = 0;
 
-    fscanf(fp, "%c", &ch);
-    while(!feof(fp)) {
-        append(&l, ch);
+    while(n) {
+        n--;
+        s[i] = (char*)malloc(sizeof(char) * 20);
+        printf("Name of the file to the compressed: ");
+        gets(s[i]);
+        fp = fopen(s[i], "r");
+        i++;
+        if(!fp) {
+            printf("Error\n");
+            return 1;
+        }
+
         fscanf(fp, "%c", &ch);
+        while(!feof(fp)) {
+            append(&l, ch);
+            fscanf(fp, "%c", &ch);
+        }
+        fclose(fp);
     }
-    fclose(fp);
 
     make_tree(&l);
-    int a[30];
+    int a[50];
     map m;
     init_map(&m);
     get_code(l, a, 0, &m);
     //traverse_map(m); //map aka linked list of codes obtained
-
-    fp = fopen("D:/Semester3/DSA/Programs/HuffmanTest.txt", "r");
-    FILE* deletethis = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "w");
-    write_table(fp, m);
-    fclose(fp);
-    fclose(deletethis);
+    n = i;
+    i = 0;
+    write_table(s, m, n);
 
     //check_file();//file written correctly
 
-    deletethis = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "r");
-    FILE *deletethistoo = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "r");
+    //*************************DECODING**********************************
+
+    FILE* deletethis = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "r");
 
     list l1;
     init(&l1);
 
-    read_header(deletethis, &l1, deletethistoo);
+    read_header(deletethis, &l1);
     fclose(deletethis);
     return 0;
 }
