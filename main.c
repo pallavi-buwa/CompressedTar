@@ -45,12 +45,13 @@ int main()
     n = i;
     i = 0;
     write_table(s, m, n);
+    mkdir("DIR");
 
     //check_file();//file written correctly
 
     //*************************DECODING**********************************
 
-    FILE* deletethis = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "r");
+    FILE* deletethis = fopen("HuffmanFinal.txt", "r");
 
     list l1;
     init(&l1);

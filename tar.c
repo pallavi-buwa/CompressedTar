@@ -334,7 +334,7 @@ void read_header(FILE* fp, list *l) {
     offset1 = offset1 / 10;
 
     fseek(fp, -(offset1 + 1 + d), SEEK_END);
-    char buffer[500];
+    char buffer[500] = {};
     int counter = 0;
     while(!feof(fp)) {
         fscanf(fp, "%c", &buffer[counter]);
@@ -342,11 +342,17 @@ void read_header(FILE* fp, list *l) {
     }
     fseek(fp, 0, SEEK_SET);
 
+    /*printf("buffer contents\n");
+    for(int i = 0; i < counter; i++) {
+        printf("%c", buffer[i]);
+    }
+    printf("\n");*/
+
     int count_files = 0;
     int nme = 0, bt = 0;
     int flag = 0, ptr_nme = 0;
 
-    char name[20];
+    char name[50]  = {};
     char ch1;
     char* s[100];
 
@@ -359,9 +365,13 @@ void read_header(FILE* fp, list *l) {
         else {
             if(flag) {
                 bytes[bt++] = ch1 - '0';
-                s[ptr_nme] = (char*)malloc(sizeof(char) * 20);
+                s[ptr_nme] = (char*)malloc(sizeof(char) * 50);
                 strcpy(s[ptr_nme], name);
+                printf("%s\n", name);
                 ptr_nme++;
+                for(int tempp = 0; tempp < nme; tempp++) {
+                    name[tempp] = '\0';
+                }
                 nme = 0;
                 strcpy(name, "");
                 flag = 0;
@@ -372,8 +382,8 @@ void read_header(FILE* fp, list *l) {
             }
         }
     }
-    /*printf("Number of files: %d\n", count_files);
-    for(int temp = 0; temp < count_files; temp++) {
+    //printf("Number of files: %d\n", count_files);
+    /*for(int temp = 0; temp < count_files; temp++) {
         printf("%s\n", s[temp]);
     }
     printf("ints\n");
@@ -457,27 +467,52 @@ void read_header(FILE* fp, list *l) {
 }
 
 FILE* decode(FILE* f, list l, char* num) {
-    FILE *fp = fopen(num, "w");
+    char* name = (char*)malloc(sizeof(char) * 100);
+    strcpy(name, "DIR/");
+    strcat(name, num);
+    //printf("%s", name);
+    FILE *fp = fopen(name, "w");
     if(fp == NULL) {
         printf("Error\n");
         return EOF;
     }
 
-    int count = 0;
+    int count = 0, set_pad = 0;
 
     int n;
     static char val;
+    static char val1;
 
     node *p = l;
     int* code;
     fread(&val, 1, 1, f);
-
-
     int eof[] = {0,0,0,1,1,0,1,0};
     int terminate[] = {0,0,0,0,0,0,0,0};
     int term = 0;
     while(!term) {
-        count++;
+        fread(&val1, 1, 1, f);
+        if(val1 == '0') {
+            code[0] = val1 - '0';
+            for(int j = 1; j < 8; j++) {
+                fread(&val1, 1, 1, f);
+                code[j] = val1 - '0';
+                if(code[j] == terminate[j]) {
+                    if(j == 7) {
+                        set_pad = bytes[count++];
+                        code = trying(val);
+                        term = 1;
+                        fseek(f, -1, SEEK_CUR);
+                        goto last;
+                    }
+                }
+                else {
+                    fseek(f, -(j), SEEK_CUR);
+                    break;
+                }
+            }
+        }
+        fseek(f, -1, SEEK_CUR);
+
         if(val == '0') {
             code[0] = val - '0';
             for(int j = 1; j < 8; j++) {
@@ -511,8 +546,8 @@ FILE* decode(FILE* f, list l, char* num) {
         if(term == 1) {
             break;
         }
-        for(int i = 0; i < 8; i++) {
-
+        last:
+        for(int i = 0; i < 8 - set_pad; i++) {
             n = *(code + i);
             if(n == 0) {
                 p = p->l;
@@ -532,7 +567,6 @@ FILE* decode(FILE* f, list l, char* num) {
     fclose(fp);
     return f;
 }
-
 
 node *make_blank_node() {
     node* nn = (node*)malloc(sizeof(node));
