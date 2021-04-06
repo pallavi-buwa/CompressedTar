@@ -185,6 +185,24 @@ This format works...
 Now, there is some extra txta file getting generated...check that...
 Also, now you need to find a way to deal with padding in the code...that's gonna be tough
 
+Hello!
+So, I have 3 things to do
+
+1. Change the input to a command line type format
+2. Merge compressed archives
+3. Padding bits
+
+First issue to be addressed is padding.
+
+So, here is an idea...accept one character ahead, reset pointer to original position.
+If that character is 0, go to the terminate condition.
+If that gets satisfied, set padding bits.
+
+Say this works, we go to merge.
+The problem is, to achieve a good compression ratio, I am making a combined header.
+So to merge those would be a nightmare.
+Try this, for now, merge only single archives, ie archives with only one file
+
 */
 
 
@@ -225,7 +243,7 @@ char *int2string(int n);
 int* trying(char ch);
 void read_header(FILE* fp, list *l);
 node *make_blank_node();
-int count_leaf(list l); //mostly not needed
+
 
 void init_map(map *m);
 void append_map(map *m, char ch, int b[], int n);

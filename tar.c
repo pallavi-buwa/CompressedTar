@@ -456,11 +456,10 @@ void read_header(FILE* fp, list *l) {
     return;
 }
 
-
 FILE* decode(FILE* f, list l, char* num) {
     FILE *fp = fopen(num, "w");
     if(fp == NULL) {
-        printf("Error here note\n");
+        printf("Error\n");
         return EOF;
     }
 
@@ -473,7 +472,7 @@ FILE* decode(FILE* f, list l, char* num) {
     int* code;
     fread(&val, 1, 1, f);
 
-    // NOTEEEEE bytes = offset
+
     int eof[] = {0,0,0,1,1,0,1,0};
     int terminate[] = {0,0,0,0,0,0,0,0};
     int term = 0;
@@ -558,102 +557,4 @@ void check_file() {
 
 
 
-
-//these three functions are not needed
-void decode_try(list l) {
-
-    FILE* f;
-    char* buffer;
-    long numbytes;
-
-    f = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "rb");
-
-
-    if(f == NULL)
-        return 1;
-
-
-    fseek(f, 0L, SEEK_END);
-    numbytes = ftell(f);
-
-
-    fseek(f, 0L, SEEK_SET);
-
-    buffer = (char*)calloc(numbytes, sizeof(char));
-
-    if(buffer == NULL)
-        printf("empty buffer\n");
-
-    fread(buffer, sizeof(char), numbytes, f);
-    fclose(f);
-    node *p = l;
-    int* code;
-    int n, stop = 0, final_bits = 0;
-    printf("buffer\n");
-    for(int i = 0; i < numbytes; i++) {
-        printf("%c", buffer[i]);
-    }
-
-    /*for(int i = 0; i < numbytes; i++) {
-            code = trying(buffer[i]);
-        for(int j = 0; j < 8 - final_bits; j++) {
-            n = *(code + i);
-            if(n == 0) {
-                p = p->l;
-            }
-            else {
-                p = p->r;
-            }
-            if(!p->l && !p->r) {
-                printf("%c", p->ch);
-                fprintf(fp, "%c", p->ch);
-                p = l;
-            }
-
-        }
-        if(stop) {
-            fclose(fp);
-            return;
-        }
-
-        if(feof(f)) {
-            final_bits = offset;
-            stop = 1;
-        }
-        //fseek(f, -2, SEEK_CUR);
-
-    }
-    }
-
-     free the memory we used for the buffer */
-    free(buffer);
-
-}
-
-
-char *int2string(int n) {
-    int i,k,and,j;
-    char *temp=(char *)malloc(16*sizeof(char));
-    j=0;
-
-    for(i=15;i>=0;i--)
-    {
-        and=1<<i;
-        k=n & and;
-        if(k==0) temp[j++]='0'; else temp[j++]='1';
-    }
-    //temp[j]='\0';
-    return temp;
-}
-
-int count_leaf(list l) {
-    node *p = l;
-    if(l == NULL) {
-        return 0;
-    }
-    if(!p->l && !p->r) {
-        return 1;
-    }
-    return (count_leaf(p->l) + count_leaf(p->r));
-}
 
