@@ -113,7 +113,7 @@ void insert_sorted(list *l, node* p) {
         q = ptr;
         ptr = ptr->next;
     }
-    p->next = ptr;          //q could become NULL- check this in dry run
+    p->next = ptr;
     q->next = p;
     return;
 }
@@ -194,18 +194,8 @@ void encode(FILE* f, map m, FILE* f1) {
         writeBit(0, f1);
     }
 
-    /*fprintf(f1, "%d", bytes);
-    int t = bytes;
-    int count_num = 0;
-    while(t > 0) {
-        t = t / 10;
-        count_num++;
-    }
-    fprintf(f1, "%d", count_num);*/
-
     char terminating[] = {'0', '0', '0', '0', '0', '0', '0', '0'};
     fwrite(&terminating,sizeof(char),8,f1);
-    //fclose(f1);
     return;
 }
 
@@ -228,7 +218,6 @@ void writeBit(int b, FILE *f) {
 	    else {
             fwrite(&byte,sizeof(char),1,f);
 	    }
-		//bytes++;
 		cnt=0;
 		byte=0;
 		return;
@@ -343,12 +332,6 @@ void read_header(FILE* fp, list *l) {
     }
     fseek(fp, 0, SEEK_SET);
 
-    /*printf("buffer contents\n");
-    for(int i = 0; i < counter; i++) {
-        printf("%c", buffer[i]);
-    }
-    printf("\n");*/
-
     int count_files = 0;
     int nme = 0, bt = 0;
     int flag = 0, ptr_nme = 0;
@@ -386,14 +369,6 @@ void read_header(FILE* fp, list *l) {
         }
     }
     merge_count += count_files;
-    //printf("Number of files: %d\n", count_files);
-    /*for(int temp = 0; temp < count_files; temp++) {
-        printf("%s\n", s[temp]);
-    }
-    printf("ints\n");
-    for(int temp = 0; temp < count_files; temp++) {
-        printf("%d\n", bytes[temp]);
-    }*/
 
     char ch, discard;
     int a[20] = {};
@@ -474,7 +449,6 @@ FILE* decode(FILE* f, list l, char* num) {
     char* name = (char*)malloc(sizeof(char) * 100);
     strcpy(name, "DIR/");
     strcat(name, num);
-    //printf("%s", name);
     FILE *fp = fopen(name, "w");
     if(fp == NULL) {
         printf("Error\n");
