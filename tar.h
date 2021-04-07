@@ -203,6 +203,13 @@ The problem is, to achieve a good compression ratio, I am making a combined head
 So to merge those would be a nightmare.
 Try this, for now, merge only single archives, ie archives with only one file
 
+Right
+Problem 1 and 2 solved
+
+Now for merging...see files will have to get generated and then you'll have to recombine them.
+So you need to make sure you delete the intermediate files.
+Yup...remove() does that
+
 */
 
 
@@ -226,6 +233,9 @@ typedef code_map* map;
 int padding;
 int byteptrs;
 int bytes[100];
+int merge_count;
+char* merge_nme[100];
+int merge_pos;
 
 //Huffman coding functions
 void init(list *l);
@@ -238,7 +248,7 @@ void traverse(list l);
 void encode(FILE *f, map m, FILE* f1);
 FILE* decode(FILE* f, list l, char* num);
 void writeBit(int b,FILE *f);
-void write_table(char* s[], map m, int n);
+void write_table(char* s[], map m, int n, char name[]);
 char *int2string(int n);
 int* trying(char ch);
 void read_header(FILE* fp, list *l);

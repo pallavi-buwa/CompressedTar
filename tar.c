@@ -265,7 +265,7 @@ code_map* search_map(map m, char ch) {
     return NULL;
 }
 
-void write_table(char* s[], map m, int n) {
+void write_table(char* s[], map m, int n, char name[]) {
     code_map *p = m;
     int count = 0;
     while(p) {
@@ -274,7 +274,7 @@ void write_table(char* s[], map m, int n) {
     }
     p = m;
 
-    FILE *f1 = fopen("HuffmanFinal.txt", "w");
+    FILE *f1 = fopen(name, "w");
     if(!f1) {
         printf("Error\n");
         return;
@@ -368,7 +368,9 @@ void read_header(FILE* fp, list *l) {
                 bytes[bt++] = ch1 - '0';
                 s[ptr_nme] = (char*)malloc(sizeof(char) * 50);
                 strcpy(s[ptr_nme], name);
-                //printf("%s\n", name);
+                merge_nme[merge_pos] = (char*)malloc(sizeof(char) * 20);
+                strcpy(merge_nme[merge_pos], name);
+                merge_pos++;
                 ptr_nme++;
                 for(int tempp = 0; tempp < nme; tempp++) {
                     name[tempp] = '\0';
@@ -383,6 +385,7 @@ void read_header(FILE* fp, list *l) {
             }
         }
     }
+    merge_count += count_files;
     //printf("Number of files: %d\n", count_files);
     /*for(int temp = 0; temp < count_files; temp++) {
         printf("%s\n", s[temp]);

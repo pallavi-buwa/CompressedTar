@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
     if(ch == 'c') {
-        if(argc > 4) {
+        if(argc > 5) {
             printf("Too many arguments\n");
             exit(1);
         }
@@ -87,11 +87,14 @@ int main(int argc, char* argv[]) {
         init(&l);
 
         char name[20] = {};
+        char c_name[20] = {};
         char c;
         char* nme[1];
-        nme[0] = name;
+
 
         strcpy(name, argv[3]);
+        strcpy(c_name, argv[4]);
+        nme[0] = name;
 
         FILE* fp = fopen(name, "r");
 
@@ -115,7 +118,7 @@ int main(int argc, char* argv[]) {
         init_map(&m);
         get_code(l, a, 0, &m);
 
-        write_table(nme, m, 1);
+        write_table(nme, m, 1, c_name);
 
     }
     else if(ch == 'e') {
@@ -137,23 +140,25 @@ int main(int argc, char* argv[]) {
         fclose(fp);
     }
     else if(ch == 'a') {
-            printf("here\n");
         char* s[50];
+        char c_name[20] = {};
+
         int n;
         char ch;
+
         list l;
         init(&l);
         FILE *fp;
+
         char num = *argv[3];
         n = num - '0';
-    printf("%d\n", n);
         int i = 0;
         int pos = 4;
+
         while(n) {
             n--;
             s[i] = (char*)malloc(sizeof(char) * 20);
             strcpy(s[i], argv[pos++]);
-            printf("%s\n", s[i]);
             fp = fopen(s[i], "r");
             i++;
             if(!fp) {
@@ -168,7 +173,7 @@ int main(int argc, char* argv[]) {
             }
             fclose(fp);
         }
-
+        strcpy(c_name, argv[pos]);
         make_tree(&l);
         int a[50];
         map m;
@@ -176,8 +181,82 @@ int main(int argc, char* argv[]) {
         get_code(l, a, 0, &m);
         n = i;
         i = 0;
-        write_table(s, m, n);
+        write_table(s, m, n, c_name);
+    }
+    else if(ch == 'm') {
 
+        //1st archive will be extracted and moved to dir
+        //second archive contents should be sent to the same place
+        //all files of dir should be compressed
+        //all files in dir should be deleted
+
+        FILE *fp;
+        char* s[50];
+        int n;
+        char ch;
+        char c_name[20] = {};
+
+        list l;
+        init(&l);
+
+        char num = *argv[3];
+        n = num - '0';
+
+        int i = 0;
+        int pos = 4;
+
+        list l1;
+        mkdir("DIR");
+
+        while(n) {
+            n--;
+            s[i] = (char*)malloc(sizeof(char) * 20);
+            strcpy(s[i], argv[pos++]);
+            fp = fopen(s[i], "r");
+            init(&l1);
+            read_header(fp, &l1);
+        }
+        //got all files in DIR
+        i = 0;
+        n = merge_count;
+        char* append_nme[20] = {};
+        while(n) {
+            n--;
+
+            append_nme[i] = (char*)malloc(sizeof(char) * 50);
+            strcpy(append_nme[i], "DIR/");
+            strcat(append_nme[i], merge_nme[i]);
+
+            fp = fopen(append_nme[i], "r");
+
+            if(!fp) {
+                printf("Cannot open file\n");
+                return 1;
+            }
+
+            fscanf(fp, "%c", &ch);
+            while(!feof(fp)) {
+                append(&l, ch);
+                fscanf(fp, "%c", &ch);
+            }
+            fclose(fp);
+            i++;
+        }
+        strcpy(c_name, argv[pos]);
+
+        make_tree(&l);
+
+        int a[50];
+        map m;
+        init_map(&m);
+        get_code(l, a, 0, &m);
+
+        n = i;
+        i = 0;
+        write_table(append_nme, m, n, c_name);
+        for(int i = 0; i < merge_count; i++) {
+            remove(append_nme[i]);
+        }
     }
     return 0;
 }

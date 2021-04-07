@@ -1,0 +1,12 @@
+Compress a single file
+tar -c File.txt Archive.txt
+
+Compress multiple files(archive)
+tar -a 2 HuffmanTest.txt HuffmanTestOne.txt Archive.txt
+
+Extract an archive
+tar -e huffmanfinal.txt
+
+Merge archives
+tar -m 2 HuffmanFinal.txt HuffmanFinalOne.txt Archive.txt
+
