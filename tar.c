@@ -291,6 +291,7 @@ void write_table(char* s[], map m, int n) {
     }
     FILE* f;
     for(int i = 0; i < n; i++) {
+
         f = fopen(s[i], "r");
         encode(f, m, f1);
         fclose(f);
@@ -367,7 +368,7 @@ void read_header(FILE* fp, list *l) {
                 bytes[bt++] = ch1 - '0';
                 s[ptr_nme] = (char*)malloc(sizeof(char) * 50);
                 strcpy(s[ptr_nme], name);
-                printf("%s\n", name);
+                //printf("%s\n", name);
                 ptr_nme++;
                 for(int tempp = 0; tempp < nme; tempp++) {
                     name[tempp] = '\0';
