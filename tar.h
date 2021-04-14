@@ -22,7 +22,6 @@ int merge_count;
 char* merge_nme[100];
 int merge_pos;
 
-//Huffman coding functions
 void init(list *l);
 void append(list *l, char ch);
 node* search(list l, char ch);
@@ -34,7 +33,6 @@ void encode(FILE *f, map m, FILE* f1);
 FILE* decode(FILE* f, list l, char* num);
 void writeBit(int b,FILE *f);
 void write_table(char* s[], map m, int n, char name[]);
-char *int2string(int n);
 int* trying(char ch);
 void read_header(FILE* fp, list *l);
 node *make_blank_node();

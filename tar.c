@@ -3,18 +3,22 @@
 #include "tar.h"
 #include <string.h>
 
+//initialize list(tree)
 void init(list *l) {
     *l = NULL;
     return;
 }
 
+
+//initialize list(map)
 void init_map(map *m) {
     *m = NULL;
     return;
 }
 
+
+//adding the obtained code of a character to the map
 void append_map(map *m, char ch, int b[], int n) {
-    //add top later to insert in O(1)
     code_map *nn = (code_map*)malloc(sizeof(code_map));
     if(nn) {
         nn->ch = ch;
@@ -39,6 +43,8 @@ void append_map(map *m, char ch, int b[], int n) {
     return;
 }
 
+
+//function that transforms the link list to a Huffman Tree
 void make_tree(list *l) {
     node *p = *l;
     node* nn;
@@ -52,7 +58,7 @@ void make_tree(list *l) {
             nn->f = nn->l->f + nn->r->f;
         }
         p = p->next;
-        nn->l->next = NULL; //check these two
+        nn->l->next = NULL;
         nn->r->next = NULL;
         if(!p)
             break;
@@ -68,9 +74,14 @@ void make_tree(list *l) {
     return;
 }
 
+
+//adding a character to the link list if it exists
+//updating frequency and sorting for those characters that already exit
 void append(list *l, char ch){
     node *ptr = search(*l, ch);
-    if(!ptr) {          //if not found
+
+    //for a new character
+    if(!ptr) {
         node *nn = (node*)malloc(sizeof(node));
         if(nn){
             nn->l = NULL;
@@ -85,13 +96,15 @@ void append(list *l, char ch){
         return;
     }
 
+    //if the character exists, update its frequency
     (ptr->f)++;
 
     if(!ptr->next)
         return;
     char t;
     int f1;
-    while(ptr->next && (ptr->f > ptr->next->f)) { //change this- swapping may not be needed
+    //sorting according to frequency
+    while(ptr->next && (ptr->f > ptr->next->f)) {
         t = ptr->ch;
         f1 = ptr->f;
         ptr->ch = ptr->next->ch;
@@ -103,6 +116,8 @@ void append(list *l, char ch){
     return;
 }
 
+
+//inserts a node in sorted order(according to frequency)
 void insert_sorted(list *l, node* p) {
     node *ptr = *l;
     node *q = NULL;
@@ -118,6 +133,8 @@ void insert_sorted(list *l, node* p) {
     return;
 }
 
+
+//searches for a character in a list and returns a pointer to it
 node* search(list l, char ch) {
     node *p = l;
 
@@ -129,6 +146,8 @@ node* search(list l, char ch) {
     return NULL;
 }
 
+
+//generate Huffman Codes for characters and store in a map
 void get_code(list l, int a[], int n, map* m) {
     if(l->l) {
         a[n] = 0;
@@ -144,6 +163,8 @@ void get_code(list l, int a[], int n, map* m) {
     }
 }
 
+
+//display the codes of all characters
 void traverse_map(map m) {
     code_map *p = m;
     while(p) {
@@ -157,6 +178,8 @@ void traverse_map(map m) {
     return;
 }
 
+
+//display the codes of all characters
 void traverse(list l){
     node *p;
     p = l;
@@ -168,92 +191,8 @@ void traverse(list l){
     return;
 }
 
-void encode(FILE* f, map m, FILE* f1) {
 
-    char ch;
-    code_map *p = NULL;
-    int data;
-    int count = 0;
-
-    fscanf(f, "%c", &ch);
-    while(!feof(f)) {
-        p = search_map(m, ch);
-        for(int i = 0; i < p->f; i++) {
-            data = p->code[i]; //got one digit in 4 byte long variable data
-            writeBit(data, f1);
-            count++;
-            if(count == 8) {
-                count = 0;
-            }
-        }
-        fscanf(f, "%c", &ch);
-    }
-    padding = 8 - count;
-    bytes[byteptrs++] = padding;
-    for(int k = 0; k < 8 - count; k++) {
-        writeBit(0, f1);
-    }
-
-    char terminating[] = {'0', '0', '0', '0', '0', '0', '0', '0'};
-    fwrite(&terminating,sizeof(char),8,f1);
-    return;
-}
-
-void writeBit(int b, FILE *f) {
-	static char byte;
-	static int cnt = 0;
-	char temp;
-	if(b == 1) {
-        temp = 1;
-		temp = temp<<(7-cnt);
-		byte = byte | temp;
-	}
-    cnt++;
-	if(cnt==8)	//buffer full
-	{
-	    if((int)byte == 26) {
-            char temp[] = {'0', '0', '0', '1', '1', '0', '1', '0'};
-            fwrite(&temp,sizeof(char),8,f);
-	    }
-	    else {
-            fwrite(&byte,sizeof(char),1,f);
-	    }
-		cnt=0;
-		byte=0;
-		return;
-	}
-	return;
-}
-
-int* trying(char ch) {
-
-    static int ans[8] = {};
-    int n;
-    char one = 1 << 7;
-    for(int i = 0; i < 8; i++) {
-        n = one & ch;
-        if(n == 0) {
-            ans[i] = 0;
-        }
-        else {
-            ans[i] = 1;
-        }
-        ch = ch << 1;
-    }
-    return ans;
-}
-
-code_map* search_map(map m, char ch) {
-    code_map *p = m;
-
-    while(p) {
-        if(p->ch == ch)
-            return p;
-        p = p->next;
-    }
-    return NULL;
-}
-
+//writing the header(Huffman Codes) in the archive
 void write_table(char* s[], map m, int n, char name[]) {
     code_map *p = m;
     int count = 0;
@@ -307,13 +246,111 @@ void write_table(char* s[], map m, int n, char name[]) {
     return;
 }
 
+
+//performs data encryption and writes data into archive
+void encode(FILE* f, map m, FILE* f1) {
+
+    char ch;
+    code_map *p = NULL;
+    int data;
+    int count = 0;
+
+    fscanf(f, "%c", &ch);
+    while(!feof(f)) {
+        p = search_map(m, ch);
+        for(int i = 0; i < p->f; i++) {
+            data = p->code[i]; //got one digit in 4 byte long variable data
+            writeBit(data, f1);
+            count++;
+            if(count == 8) {
+                count = 0;
+            }
+        }
+        fscanf(f, "%c", &ch);
+    }
+    padding = 8 - count;
+    bytes[byteptrs++] = padding;
+    for(int k = 0; k < 8 - count; k++) {
+        writeBit(0, f1);
+    }
+
+    //mark to denote end of contents of one file
+    char terminating[] = {'0', '0', '0', '0', '0', '0', '0', '0'};
+
+    fwrite(&terminating,sizeof(char),8,f1);
+    return;
+}
+
+
+//makes use of a bit buffer to write data into the archive
+void writeBit(int b, FILE *f) {
+	static char byte;
+	static int cnt = 0;
+	char temp;
+	if(b == 1) {
+        temp = 1;
+		temp = temp<<(7-cnt);
+		byte = byte | temp;
+	}
+    cnt++;
+	if(cnt==8)	//buffer full
+	{
+	    if((int)byte == 26) {
+            char temp[] = {'0', '0', '0', '1', '1', '0', '1', '0'};
+            fwrite(&temp,sizeof(char),8,f);
+	    }
+	    else {
+            fwrite(&byte,sizeof(char),1,f);
+	    }
+		cnt=0;
+		byte=0;
+		return;
+	}
+	return;
+}
+
+
+//reads a bit from the archive and returns it as a byte
+int* trying(char ch) {
+
+    static int ans[8] = {};
+    int n;
+    char one = 1 << 7;
+    for(int i = 0; i < 8; i++) {
+        n = one & ch;
+        if(n == 0) {
+            ans[i] = 0;
+        }
+        else {
+            ans[i] = 1;
+        }
+        ch = ch << 1;
+    }
+    return ans;
+}
+
+
+//returns a pointer to a character in the map
+code_map* search_map(map m, char ch) {
+    code_map *p = m;
+
+    while(p) {
+        if(p->ch == ch)
+            return p;
+        p = p->next;
+    }
+    return NULL;
+}
+
+
+//reads the header of the archive and makes a Huffman Tree
 void read_header(FILE* fp, list *l) {
 
     node *p = *l;
     node* nn = make_blank_node();
     *l = nn;
     p = nn;
-
+    //reading the names of the files to be decoded
     fseek(fp, -1, SEEK_END);
     int d;
 
@@ -339,7 +376,7 @@ void read_header(FILE* fp, list *l) {
     char name[50]  = {};
     char ch1;
     char* s[100];
-
+    //getting file names that are written at the end of the archive
     for(int i = 0; i < counter; i++) {
         ch1 = buffer[i];
         if((ch1 >= 'A' && ch1 <= 'Z') || (ch1 >= 'a' && ch1 <= 'z') || ch1 == '.') {
@@ -399,7 +436,7 @@ void read_header(FILE* fp, list *l) {
 
         int x;
         p = *l;
-        //constructing tree
+        //constructing Huffman tree
         for(int j = 0; j < i; j++) {
             x = a[j];
             if(x == 0) {
@@ -445,6 +482,8 @@ void read_header(FILE* fp, list *l) {
     return;
 }
 
+
+//decrypts the file by reading individual bytes and extracting bit information
 FILE* decode(FILE* f, list l, char* num) {
     char* name = (char*)malloc(sizeof(char) * 100);
     strcpy(name, "DIR/");
@@ -464,7 +503,11 @@ FILE* decode(FILE* f, list l, char* num) {
     node *p = l;
     int* code;
     fread(&val, 1, 1, f);
+
+    //EOF character may occur within a file(encrypted)
     int eof[] = {0,0,0,1,1,0,1,0};
+
+    //file terminating marker
     int terminate[] = {0,0,0,0,0,0,0,0};
     int term = 0;
     while(!term) {
@@ -546,6 +589,8 @@ FILE* decode(FILE* f, list l, char* num) {
     return f;
 }
 
+
+//makes a blank node for a list
 node *make_blank_node() {
     node* nn = (node*)malloc(sizeof(node));
     nn->ch = '#';
@@ -553,6 +598,8 @@ node *make_blank_node() {
     return nn;
 }
 
+
+//to check if the archive is written correctly(test function)
 void check_file() {
     printf("\n Checking file\n");
     FILE *deletethis = fopen("D:/Semester3/DSA/Programs/HuffmanFinal.txt", "r");
